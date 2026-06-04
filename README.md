@@ -41,6 +41,7 @@ Already implemented:
 - A sample `GeneratePdfHandler`.
 - Basic idempotency support through `idempotencyKey`.
 - Flyway database migration for creating the `tasks` table, `task_status` enum, and scheduler indexes.
+- Repository methods for heartbeat updates, completion, retry, and permanent failure.
 
 Not implemented yet:
 
@@ -49,7 +50,6 @@ Not implemented yet:
 - Execution engine using Java threads or virtual threads.
 - Handler registry that maps task types to handler implementations.
 - Heartbeat updates while a task is running.
-- Repository methods for marking tasks `COMPLETED`, retrying failed tasks, or permanently failing tasks.
 - Docker Compose setup for PostgreSQL and multiple worker nodes.
 
 ## Current Flow
@@ -100,13 +100,12 @@ Task handlers contain the actual business logic for each task type. For example,
 
 The next implementation steps are:
 
-1. Add repository methods for completion, retry, failure, and heartbeat updates.
-2. Build a handler registry.
-3. Add a task queue.
-4. Add a scheduled worker poller.
-5. Add the task execution engine.
-6. Add heartbeat handling.
-7. Add Docker Compose for PostgreSQL and multiple app workers.
+1. Build a handler registry.
+2. Add a task queue.
+3. Add a scheduled worker poller.
+4. Add the task execution engine.
+5. Add heartbeat handling.
+6. Add Docker Compose for PostgreSQL and multiple app workers.
 
 ## Tech Stack
 

@@ -39,6 +39,94 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> acquireTasks(@Param("workerId") String workerId, @Param("limit") int limit);
 
     /**
+     * While a worker is executing a task, it periodically updates the heartbeat
+     * so the reaper knows the task is still alive.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE tasks
+        SET
+            last_heartbeat = NOW(),
+            updated_at = NOW()
+        WHERE
+            id = :taskId
+            AND status = 'RUNNING'
+            AND locked_by = :workerId
+        """, nativeQuery = true)
+    int updateHeartbeat(@Param("taskId") UUID taskId, @Param("workerId") String workerId);
+
+    /**
+     * Marks a successfully executed task as completed and releases the worker lock.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE tasks
+        SET
+            status = 'COMPLETED',
+            locked_by = NULL,
+            last_heartbeat = NULL,
+            updated_at = NOW()
+        WHERE
+            id = :taskId
+            AND status = 'RUNNING'
+            AND locked_by = :workerId
+        """, nativeQuery = true)
+    int markCompleted(@Param("taskId") UUID taskId, @Param("workerId") String workerId);
+
+    /**
+     * Moves a failed task back to PENDING when it still has retries available.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE tasks
+        SET
+            status = 'PENDING',
+            locked_by = NULL,
+            last_heartbeat = NULL,
+            retry_count = retry_count + 1,
+            error_message = :errorMessage,
+            updated_at = NOW()
+        WHERE
+            id = :taskId
+            AND status = 'RUNNING'
+            AND locked_by = :workerId
+            AND retry_count < max_retries
+        """, nativeQuery = true)
+    int markFailedForRetry(
+            @Param("taskId") UUID taskId,
+            @Param("workerId") String workerId,
+            @Param("errorMessage") String errorMessage
+    );
+
+    /**
+     * Marks a failed task as terminally failed when no retries remain.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE tasks
+        SET
+            status = 'FAILED',
+            locked_by = NULL,
+            last_heartbeat = NULL,
+            error_message = :errorMessage,
+            updated_at = NOW()
+        WHERE
+            id = :taskId
+            AND status = 'RUNNING'
+            AND locked_by = :workerId
+            AND retry_count >= max_retries
+        """, nativeQuery = true)
+    int markPermanentlyFailed(
+            @Param("taskId") UUID taskId,
+            @Param("workerId") String workerId,
+            @Param("errorMessage") String errorMessage
+    );
+
+    /**
      * Finds tasks that have been RUNNING but haven't updated their heartbeat in 30 seconds.
      * Re-queues them (Sets back to PENDING) if they have retries left.
      */
