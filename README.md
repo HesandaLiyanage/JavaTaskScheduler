@@ -40,10 +40,10 @@ Already implemented:
 - A `TaskHandler` interface.
 - A sample `GeneratePdfHandler`.
 - Basic idempotency support through `idempotencyKey`.
+- Flyway database migration for creating the `tasks` table, `task_status` enum, and scheduler indexes.
 
 Not implemented yet:
 
-- Flyway database migration for creating the schema.
 - Worker poller that calls `TaskRepository.acquireTasks(...)`.
 - In-memory `BlockingQueue` for handing tasks from the poller to executors.
 - Execution engine using Java threads or virtual threads.
@@ -100,14 +100,13 @@ Task handlers contain the actual business logic for each task type. For example,
 
 The next implementation steps are:
 
-1. Add Flyway and create the database schema migration.
-2. Add repository methods for completion, retry, failure, and heartbeat updates.
-3. Build a handler registry.
-4. Add a task queue.
-5. Add a scheduled worker poller.
-6. Add the task execution engine.
-7. Add heartbeat handling.
-8. Add Docker Compose for PostgreSQL and multiple app workers.
+1. Add repository methods for completion, retry, failure, and heartbeat updates.
+2. Build a handler registry.
+3. Add a task queue.
+4. Add a scheduled worker poller.
+5. Add the task execution engine.
+6. Add heartbeat handling.
+7. Add Docker Compose for PostgreSQL and multiple app workers.
 
 ## Tech Stack
 

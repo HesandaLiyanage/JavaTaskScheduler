@@ -2,7 +2,9 @@ package com.hess.javataskscheduler.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -25,7 +27,8 @@ public class Task {
     private String payload;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(columnDefinition = "task_status", nullable = false)
     private TaskStatus status = TaskStatus.PENDING;
 
     @Column(name = "created_at", updatable = false)
