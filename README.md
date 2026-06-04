@@ -42,13 +42,13 @@ Already implemented:
 - Basic idempotency support through `idempotencyKey`.
 - Flyway database migration for creating the `tasks` table, `task_status` enum, and scheduler indexes.
 - Repository methods for heartbeat updates, completion, retry, and permanent failure.
+- Handler registry that maps task types to handler implementations.
 
 Not implemented yet:
 
 - Worker poller that calls `TaskRepository.acquireTasks(...)`.
 - In-memory `BlockingQueue` for handing tasks from the poller to executors.
 - Execution engine using Java threads or virtual threads.
-- Handler registry that maps task types to handler implementations.
 - Heartbeat updates while a task is running.
 - Docker Compose setup for PostgreSQL and multiple worker nodes.
 
@@ -100,12 +100,11 @@ Task handlers contain the actual business logic for each task type. For example,
 
 The next implementation steps are:
 
-1. Build a handler registry.
-2. Add a task queue.
-3. Add a scheduled worker poller.
-4. Add the task execution engine.
-5. Add heartbeat handling.
-6. Add Docker Compose for PostgreSQL and multiple app workers.
+1. Add a task queue.
+2. Add a scheduled worker poller.
+3. Add the task execution engine.
+4. Add heartbeat handling.
+5. Add Docker Compose for PostgreSQL and multiple app workers.
 
 ## Tech Stack
 
